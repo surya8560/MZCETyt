@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"> -->
+    <!-- <link rel="stylesheet" href="css/index.css"> -->
+    <title>certificate</title>
+</head>
+<body>
+    <style>
+        /* Add CSS styles for positioning text on top of the image */
+        .certificate {
+            position: relative;
+            max-width: 100%;
+            width: 700px;
+            margin-bottom: 20px; /* Add margin to separate certificates */
+        }
+
+    .text-overlay {
+        position: absolute;
+        top: 70%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-size: 14px;
+        font-weight: lighter;
+        color: red; /* Text color */
+        font-family: Arial, sans-serif; /* Change the font family */
+        /* Text shadow for visibility */
+    }
+
+        .download-button {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+     <nav class="navbar navbar-expand-lg ">
+        <div class="container-fluid">
+                <img src="img/demo.png" alt="Logo">
+        </div>
+    </nav>
+    <body style="background-image: url('img/bg.jpg');"></body>
+    <div id="certificates">
+        <!-- Certificates will be inserted here -->
+    </div>
+
+    <script>
+        // Function to create a canvas and generate a certificate image
+        function generateCertificateImage(memberData, collegeName) {
+            const certificatesDiv = document.getElementById("certificates");
+            const certificateDiv = document.createElement("div");
+            certificateDiv.className = "certificate";
+
+            // Create a canvas element
+            const canvas = document.createElement("canvas");
+            canvas.width = 700;
+            canvas.height = 400;
+            const ctx = canvas.getContext("2d");
+
+            // Draw the certificate image
+            const image = new Image();
+            image.src = "pcer.png";
+            image.onload = () => {
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                // Add certificate text with line breaks
+                ctx.font = 'bold 10px "Noto Serif", serif';
+                ctx.fillStyle = "black";
+                ctx.textAlign = "center";
+                
+                // Customize the text based on member data and college name
+                const lines = [
+                    `This certificate is provided to ${memberData.Member.toUpperCase()} from ${collegeName.CollegeName.toUpperCase()} for`,
+                    ` having participated in ${memberData.Events.toUpperCase()} of  TECHQUEST'23 on SEPTEMBER 15, 2023.`,
+                ];
+
+             
+                const lineHeight = 20; 
+                const totalHeight = lines.length * lineHeight;
+                const startY = 279;
+
+                lines.forEach((line, index) => {
+                    const lineY = startY + index * lineHeight;
+                    ctx.fillText(line, canvas.width / 2, lineY);
+                });
+
+                certificateDiv.appendChild(canvas);
+
+                const downloadButton = document.createElement("a");
+                downloadButton.href = canvas.toDataURL("image/png"); // Convert canvas to a data URL
+                downloadButton.download = `${memberData.Member}_Certificate.png`;
+                const button = document.createElement("button");
+                button.style.backgroundColor="brown";
+                button.style.color="white";
+                button.style.borderRadius="20px"
+                button.style.cursor="pointer"
+                button.textContent = "Download Certificate";
+                button.style.marginLeft="250px";
+                downloadButton.appendChild(button);
+                certificateDiv.appendChild(downloadButton);
+
+                certificatesDiv.appendChild(certificateDiv);
+            };
+        }
+
+        function getUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            const techquestId = urlParams.get('techquestId');
+            return { email, techquestId };
+        }
+
+        // Main function to generate certificates
+        function main() {
+            const { email, techquestId } = getUrlParameters();
+
+            if (!email || !techquestId) {
+                alert("Email or Techquest ID missing in URL.");
+                return;
+            }
+
+            // Fetch data for the given email and techquestId
+            fetch('https://mzcet.in/techquest23/api/arrivalorderjson.php')
+                .then(response => response.json())
+                .then(entryData => {
+                    entryData.forEach(matchingEntry => {
+                        if (matchingEntry.techquest_id === techquestId && matchingEntry.Participate === "Yes") {
+                            // Fetch collegeName data from external source (replace with actual source)
+                            fetch('https://mzcet.in/techquest23/returnjson.php')
+                                .then(response => response.json())
+                                .then(collegeNameData => {
+                                    // Find the matching college name based on Techquest ID
+                                    const matchingCollege = collegeNameData.find(item => item.techquest_id === techquestId);
+
+                                    if (matchingCollege) {
+                                        // Generate the certificate image with text and download button
+                                        generateCertificateImage(matchingEntry, matchingCollege);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error("Error fetching collegeName data:", error);
+                                });
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching data from the API:", error);
+                });
+        }
+
+        // Call the main function to generate certificates
+        main();
+    </script>
+</body>
+</html>

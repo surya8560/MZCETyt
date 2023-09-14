@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <title>certificate</title>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg ">
+        <div class="container-fluid">
+                <img src="img/demo.png" alt="Logo">
+        </div>
+    </nav>
+
+    <body style="background-image: url('img/bg.jpg');">
+        <div class="container"></div>
+            <div class="responsive-box">
+                <h1 id="hd">Check Your Details</h1><br><br>
+                <input id="email" type="email" name="email" placeholder="Enter your email"><br><br>
+                <input id="but" type="submit" value="Next" onclick="generateCertificates()">
+            </div>
+        </div>
+    </body>
+
+    <script>
+       
+        function generateCertificates() {
+            const email = document.getElementById("email").value.trim();
+
+            if (email === "") {
+                alert("Please enter an email address.");
+                return;
+            }
+
+            // Step 1: Check email in the first API
+            fetch('https://mzcet.in/techquest23/returnjson.php')
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.find(item => item.Email === email);
+
+                    if (!user) {
+                        alert("Email not found in the data.");
+                        return;
+                    }
+
+                    const techquestId = user.techquest_id;
+
+                    // Redirect to the second HTML page with email and techquestId as URL parameters
+                    window.location.href = `second.html?email=${email}&techquestId=${techquestId}`;
+                })
+                .catch(error => {
+                    console.error("Error fetching data from the first API:", error);
+                    alert("An error occurred while fetching data from the first API.");
+                });
+        }
+    </script>
+</body>
+</html>
