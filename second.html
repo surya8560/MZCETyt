@@ -17,20 +17,7 @@
             margin-bottom: 20px; /* Add margin to separate certificates */
         }
 
-    .text-overlay {
-        position: absolute;
-        top: 70%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        font-size: 14px;
-        font-weight: lighter;
-        color: red; /* Text color */
-        font-family: Arial, sans-serif; /* Change the font family */
-        /* Text shadow for visibility */
-    }
-
-        .download-button {
+          .download-button {
             text-align: center;
             margin-top: 10px;
         }
@@ -79,6 +66,7 @@
                 const lineHeight = 20; 
                 const totalHeight = lines.length * lineHeight;
                 const startY = 343;
+                // lines.style.marginLeft="20px";
 
                 lines.forEach((line, index) => {
                     const lineY = startY + index * lineHeight;
@@ -88,8 +76,8 @@
                 certificateDiv.appendChild(canvas);
 
                 const downloadButton = document.createElement("a");
-                downloadButton.href = canvas.toDataURL("image/png"); // Convert canvas to a data URL
-                downloadButton.download = `${memberData.Member}_Certificate.png`;
+                downloadButton.href = canvas.toDataURL("application/pdf"); // Convert canvas to a data URL
+                downloadButton.download = `${memberData.Member}_Certificate.pdf`;
                 const button = document.createElement("button");
                 button.style.backgroundColor="brown";
                 button.style.color="white";
